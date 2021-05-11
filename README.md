@@ -1,4 +1,4 @@
-# cowin_bot
+# CoWin Bot
 CoWin bot written on AWS Lambda
 
 Note: Bundle this script with the requests library when uploading it to AWS lambda

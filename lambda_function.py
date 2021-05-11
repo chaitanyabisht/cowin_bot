@@ -26,28 +26,22 @@ def api(pincode,date):
         flag = False
         message = ''
         for session in center['sessions']:
-            if (session['min_age_limit'] >= 18 and session['available_capacity'] >= 0):
+            if (session['min_age_limit'] == 18 and session['available_capacity'] > 0):
 
                 if (flag == False):
-                    #print(f'Center ID: {center["center_id"]}')
-                    #print(f'Center Name: {center["name"]}')
-
                     message += f'Center ID: {center["center_id"]}\n'
                     message += f'Center Name: {center["name"]}\n'
 
                     flag = True
                     nothingfound = False
 
-                    #print()
                     message += '\n'
                 
-                #print(f'    Date: {session["date"]}')
-                #print(f'    Vaccine: {session["vaccine"]}')
-                #print(f'    Available Capacity: {session["available_capacity"]}')
 
                 message += f'    Date: {session["date"]}\n'
                 message += f'    Vaccine: {session["vaccine"]}\n'
                 message += f'    Available Capacity: {session["available_capacity"]}\n'
+                message += "\n"
 
         if (flag == True):
             lst.append(message)
@@ -60,21 +54,33 @@ def api(pincode,date):
 
     
 def lambda_handler(event, context):
+    
+    resp = ''
+    
     x = datetime.datetime.now()
     date = str(x.day) + '-' + str(x.month) + '-' + str(x.year)
-
-    lst = (api(110075,date))
-
-    if (lst[0] != -1):
-
-        token = os.getenv('BOT_TOKEN')
-        chat_id = os.getenv('CHAT_ID')
-        for message in lst:
-            telegram(token,chat_id,message)
+    
+    pincodes = [110078,110075]
+    
+    for pin in pincodes:
+        
+        lst = (api(pin,date))
+    
+        if (lst[0] != -1):
+    
+            token = os.getenv('BOT_TOKEN')
+            chat_id = os.getenv('CHAT_ID')
+            for message in lst:
+                telegram(token,chat_id,message)
+            
+            resp = 'Vaccination centers found!'
+        
+        else:
+             resp = 'Vaccination centers not found !'
     
     
     
     return {
         'statusCode': 200,
-        'body': json.dumps('Hello from Lambda!')
+        'body': json.dumps(resp)
     }
